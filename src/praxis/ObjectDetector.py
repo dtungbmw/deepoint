@@ -1,4 +1,5 @@
 from ultralytics import YOLOWorld
+from praxis.Camera import MonocularCamera
 
 class ObjectDetector:
     
@@ -19,7 +20,9 @@ class YOLOWorldObjectDetector(ObjectDetector):
     def __init__(self):
         self.model = YOLOWorld("yolov8s-world.pt")  # or select yolov8m/l-world.pt for different sizes
         
-    def predict(self, image):
+    def predict(self, video):
+        monocularCamera = MonocularCamera()
+        image = monocularCamera.extractImage(video)
         self.image = image
         self.model.set_classes(["laptop" , "lamp", "fan"])
         results = self.model.predict(image)    
