@@ -1,7 +1,7 @@
-from DepthEstimator import *
-from ObjectDetector import ObjectDetector
-from GesturePointingDirectionEstimator import *
-from Camera import MonocularCamera
+from praxis.DepthEstimator import *
+from praxis.ObjectDetector import ObjectDetector
+from praxis.GesturePointingDirectionEstimator import *
+from praxis.Camera import MonocularCamera
     
 class PointedObjectClassifier:
     
