@@ -6,5 +6,6 @@ def calculate_intersection(joints, directionPred, objDetection, depthEstimation)
     print(f"==>>> joints={joints}")
     print(f"==>>> direction={directionPred}")
     print(f"==>>> objDetection={objDetection}")
+    print("==== end calculate_intersection")
     return True
 
