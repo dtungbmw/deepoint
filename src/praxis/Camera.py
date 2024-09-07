@@ -8,12 +8,16 @@ class Camera:
 
 OUT_FILE = "/tmp/tmp2.jpg"
 RANGE = 15
-    
+
     
 class MonocularCamera(Camera): 
     
     def __init__(self):
-        pass
+        #CameraIntrinsic
+        self.f_x = 1200
+        self.f_y = 1200
+        self.c_x = 2016
+        self.c_y = 1512
 
     def extractImage(self, video_file):
         cam = cv2.VideoCapture(video_file)
