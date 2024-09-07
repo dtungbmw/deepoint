@@ -7,7 +7,7 @@ class Camera:
         self.model = None
 
 OUT_FILE = "/tmp/tmp2.jpg"
-RANGE = 5
+RANGE = 15
     
     
 class MonocularCamera(Camera): 

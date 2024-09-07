@@ -3,14 +3,16 @@ import cv2
 import torch
 import dataset
 from pathlib import Path
-from tqdm import tqdm
+
 import hydra
 from torch.utils.data import DataLoader
 from omegaconf import DictConfig, OmegaConf
 from model import build_pointing_network
 #from draw_arrow import WIDTH, HEIGHT
 from praxis.ObjectDetector import YOLOWorldObjectDetector
-
+from praxis.GesturePointingDirectionEstimator import DeepointointingEstimator
+from praxis.PointedObjClassifierPipeline import PointedObjClassifierPipeline
+from praxis.Utilities import *
 
 @hydra.main(version_base=None, config_path="../conf", config_name="base")
 def main(cfg: DictConfig) -> None:
@@ -45,23 +47,21 @@ def main(cfg: DictConfig) -> None:
         batch_size=cfg.hardware.bs,
         num_workers=cfg.hardware.nworkers,
     )
+    '''
     objectDetector = YOLOWorldObjectDetector()
-    objectDetector.predict_and_vis(cfg.movie)
-
-    network = build_pointing_network(cfg, DEVICE)
-
-    # Since the model trained using pytorch lightning contains `model.` as an prefix to the keys of state_dict, we should remove them before loading
-    model_dict = torch.load(cfg.ckpt, map_location=torch.device('cpu'))["state_dict"]
-    new_model_dict = dict()
-    for k, v in model_dict.items():
-        new_model_dict[k[6:]] = model_dict[k]
-    model_dict = new_model_dict
-    network.load_state_dict(model_dict)
-    network.to(DEVICE)
+    objectDetectorResults = objectDetector.predict_and_vis(cfg.movie)
+    
+    deepointointingEstimator = DeepointointingEstimator()
+    network = deepointointingEstimator.build_network(cfg, DEVICE)
+    '''
+    objectDetector = YOLOWorldObjectDetector()
+    deepointointingEstimator = DeepointointingEstimator()
+    pointedObjClassifierPipeline = PointedObjClassifierPipeline(deepointointingEstimator, objectDetector)
+    pointedObjClassifierPipeline.classify(dl, cfg, DEVICE)
 
     Path("demo").mkdir(exist_ok=True)
-    fps = 15
     '''
+    fps = 15
     out_green = cv2.VideoWriter(
         f"demo/{Path(cfg.movie).name}-processed-green-{cfg.lr}.mp4",
         cv2.VideoWriter_fourcc("m", "p", "4", "v"),
@@ -74,10 +74,9 @@ def main(cfg: DictConfig) -> None:
         fps,
         (WIDTH, HEIGHT),
     )
-    '''
-
     prev_arrow_base = np.array((0, 0))
-
+    '''
+    '''
     for batch in tqdm(dl):
         result = network(batch)
         # bs may be smaller than cfg.hardware.bs for the last iteration
@@ -87,11 +86,16 @@ def main(cfg: DictConfig) -> None:
             image = batch["orig_image"][i_bs].to("cpu").numpy() / 255
 
             direction = result["direction"][i_bs]
+            print(f'direction={direction}')
             prob_pointing = float(
                 (result["action"][i_bs, 1].exp() / result["action"][i_bs].exp().sum())
             )
             print(f"{prob_pointing=}")
-    '''
+
+            ##
+            calculate_intersection(None, None, objectDetectorResults, None)
+    
+    
             ORIG_HEIGHT, ORIG_WIDTH = image.shape[:2]
             hand_idx = 9 if batch["lr"][i_bs] == "l" else 10
             if (joints[hand_idx] < 0).any():
