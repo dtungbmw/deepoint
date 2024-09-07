@@ -47,13 +47,7 @@ def main(cfg: DictConfig) -> None:
         batch_size=cfg.hardware.bs,
         num_workers=cfg.hardware.nworkers,
     )
-    '''
-    objectDetector = YOLOWorldObjectDetector()
-    objectDetectorResults = objectDetector.predict_and_vis(cfg.movie)
-    
-    deepointointingEstimator = DeepointointingEstimator()
-    network = deepointointingEstimator.build_network(cfg, DEVICE)
-    '''
+
     objectDetector = YOLOWorldObjectDetector()
     deepointointingEstimator = DeepointointingEstimator()
     pointedObjClassifierPipeline = PointedObjClassifierPipeline(deepointointingEstimator, objectDetector)
@@ -153,22 +147,6 @@ def main(cfg: DictConfig) -> None:
     '''
     return
 
-
-def draw_arrow_on_image(image, arrow_spec, kwargs):
-    """
-    Params:
-    image: np.ndarray(height, width, 3), with dtype=float, value in the range of [0,1]
-    arrow_spec, kwargs: options for render_frame
-    Returns:
-    image: np.ndarray(HEIGHT, WIDTH, 3), with dtype=float, value in the range of [0,1]
-    """
-    from draw_arrow import render_frame, WIDTH, HEIGHT
-
-    ret_image = cv2.resize(image, (WIDTH, HEIGHT)).astype(float)
-    img_arrow = render_frame(*arrow_spec, **kwargs).astype(float) / 255
-    arrow_mask = (img_arrow.sum(axis=2) == 0.0).astype(float)[:, :, None]
-    ret_image = arrow_mask * ret_image + (1 - arrow_mask) * img_arrow
-    return ret_image
 
 
 if __name__ == "__main__":

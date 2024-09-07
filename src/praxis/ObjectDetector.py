@@ -24,7 +24,7 @@ class YOLOWorldObjectDetector(ObjectDetector):
         monocularCamera = MonocularCamera()
         image = monocularCamera.extractImage(video)
         self.image = image
-        self.model.set_classes(["laptop", "lamp", "fan"])
+        self.model.set_classes(["tv", "laptop", "lamp", "fan"])
         results = self.model.predict(image)    
         return results
 
