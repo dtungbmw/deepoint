@@ -27,6 +27,12 @@ class YOLOWorldObjectDetector(ObjectDetector):
         self.model.set_classes(["laptop" , "lamp", "fan"])
         results = self.model.predict(image)    
         return results
+
+    def predict_and_vis(self, video):
+        results = self.predict(video)
+        self.print_results(results)
+        self.visualize(results)
+        return results
     
     def visualize(self, results):
         results[0].show()

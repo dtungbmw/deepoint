@@ -5,6 +5,8 @@ from praxis.Camera import MonocularCamera
 from torch.utils.data import DataLoader
 import torch
 import dataset
+from model import build_pointing_network
+from omegaconf import DictConfig, OmegaConf
 
     
 class PointedObjClassifierPipeline:
