@@ -48,9 +48,7 @@ def main(cfg: DictConfig) -> None:
         num_workers=cfg.hardware.nworkers,
     )
 
-    objectDetector = YOLOWorldObjectDetector()
-    deepointointingEstimator = DeepointointingEstimator()
-    pointedObjClassifierPipeline = PointedObjClassifierPipeline(deepointointingEstimator, objectDetector)
+    pointedObjClassifierPipeline = PointedObjClassifierPipeline()
     pointedObjClassifierPipeline.classify(dl, cfg, DEVICE)
 
     Path("demo").mkdir(exist_ok=True)

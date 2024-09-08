@@ -22,7 +22,25 @@ class GLPNDepthEstimator(DepthEstimator):
             outputs = self.model(**inputs)
             predicted_depth = outputs.predicted_depth
             return predicted_depth
+'''
+    def convert_2d_to_3d(self, pixel_2d):
+        #camera = MonocularCamera()
+        #image = camera.extractImage(self.image_file)
+        #gLPNDepthEstimator = GLPNDepthEstimator()
+        depth_map = self.predict()
+        print(depth_map.shape)
+        print(depth_map)
+        depth_value = depth_map[0][int(pixel_2d[1]), int(pixel_2d[0])]  # Z value in 3D
 
+        # Step 2: Back-project the 2D point to 3D coordinates
+        X = (pixel_2d[0] - camera.c_x) * depth_value / camera.f_x  # X in 3D
+        Y = (pixel_2d[1] - camera.c_y) * depth_value / camera.f_y  # Y in 3D
+        Z = depth_value  # Z is the depth value
+
+        point_3d = torch.tensor([X, Y, Z])
+
+        return point_3d
+'''
 
 class MidasDepthEstimator(DepthEstimator):
 
@@ -35,7 +53,7 @@ class MidasDepthEstimator(DepthEstimator):
         #midas_model = load_model(model_path, model_type)
 
     def predict(self, img):
-        input_batch = transform(img).to("cuda" if torch.cuda.is_available() else "cpu")
+        input_batch = self.transform(img).to("cuda" if torch.cuda.is_available() else "cpu")
 
         # Perform inference to get depth map
         with torch.no_grad():
@@ -52,7 +70,6 @@ class MidasDepthEstimator(DepthEstimator):
         # Convert depth to numpy
         depth_map = prediction.cpu().numpy()
         return depth_map
-    
-    
-    
+
+
     
