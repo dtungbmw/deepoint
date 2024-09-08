@@ -15,32 +15,14 @@ class GLPNDepthEstimator(DepthEstimator):
         self.feature_extractor = GLPNImageProcessor.from_pretrained("vinvino02/glpn-nyu")
         self.model = GLPNForDepthEstimation.from_pretrained("vinvino02/glpn-nyu")
 
-    def predict(self, image_file):
-        image = Image.open(image_file)
+    def predict(self, image):
+        #image = Image.open(image_file)
         inputs = self.feature_extractor(images=image, return_tensors="pt")
         with torch.no_grad():
             outputs = self.model(**inputs)
             predicted_depth = outputs.predicted_depth
             return predicted_depth
-'''
-    def convert_2d_to_3d(self, pixel_2d):
-        #camera = MonocularCamera()
-        #image = camera.extractImage(self.image_file)
-        #gLPNDepthEstimator = GLPNDepthEstimator()
-        depth_map = self.predict()
-        print(depth_map.shape)
-        print(depth_map)
-        depth_value = depth_map[0][int(pixel_2d[1]), int(pixel_2d[0])]  # Z value in 3D
 
-        # Step 2: Back-project the 2D point to 3D coordinates
-        X = (pixel_2d[0] - camera.c_x) * depth_value / camera.f_x  # X in 3D
-        Y = (pixel_2d[1] - camera.c_y) * depth_value / camera.f_y  # Y in 3D
-        Z = depth_value  # Z is the depth value
-
-        point_3d = torch.tensor([X, Y, Z])
-
-        return point_3d
-'''
 
 class MidasDepthEstimator(DepthEstimator):
 
