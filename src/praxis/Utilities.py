@@ -2,13 +2,17 @@ import torch
 from praxis.Camera import MonocularCamera
 from praxis.DepthEstimator import GLPNDepthEstimator
 
-def calculate_intersection(joints, directionPred, objDetection, depthEstimation):
+def calculate_intersection(joints_index, directionPred, objDetection, depthEstimation):
 
-    print("==== calculate_intersection")
-    print(f"==>>> joints={joints}")
+    print("================= Calculate_intersection")
+    print(f"==>>> joints_index={joints_index}")
     print(f"==>>> direction={directionPred}")
     print(f"==>>> objDetection={objDetection}")
     print("==== end calculate_intersection")
+
+    joints_index_3d = convert_2d_to_3d(joints_index)
+    print(f"==>>> joints_index_3d={joints_index}")
+
     return True
 
 def convert_2d_to_3d(depth_map, pixel_2d):
