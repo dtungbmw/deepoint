@@ -13,6 +13,8 @@ from praxis.DepthEstimator import GLPNDepthEstimator
 from praxis.Camera import MonocularCamera
 from praxis.Utilities import *
 
+PROB_POINTING_MIN = 0.7
+COSINE_SIM_MIN = 0.7
     
 class PointedObjClassifierPipeline:
     
@@ -53,11 +55,17 @@ class PointedObjClassifierPipeline:
                     (result["action"][i_bs, 1].exp() / result["action"][i_bs].exp().sum())
                 )
                 hand_idx = 9 if batch["lr"][i_bs] == "l" else 10
-                depth_map = gLPNDepthEstimator.predict(image)
-                calculate_intersection(joints[hand_idx], direction, objectDetectorResults[0].boxes, depth_map)
-                if prob_pointing >= 0.8:
+                if prob_pointing >= PROB_POINTING_MIN:
                     print(f"******$$$$$$$$$$ {prob_pointing=}")
-                    #exit(0)
+                    depth_map = gLPNDepthEstimator.predict(image)
+                    cosine_similarity, obj_cls = \
+                        calculate_intersection(joints[hand_idx], direction, objectDetectorResults[0].boxes, depth_map)
+                    if cosine_similarity > COSINE_SIM_MIN:
+                        print(f"-------------------------------->>>>>>>>>")
+                        print(f"-------------------------------->>>>>>>>>")
+                        print(f"-------------------------------->>>>>>>>> Pointed to {obj_cls}, with cosine_similarity={cosine_similarity}")
+                        print(f"-------------------------------->>>>>>>>>")
+                        #exit(0)
                 else:
                     print(f"|||||||$$$$$$$$$$ {prob_pointing=}")
 

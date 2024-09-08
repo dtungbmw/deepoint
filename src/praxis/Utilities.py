@@ -3,7 +3,7 @@ from praxis.Camera import MonocularCamera
 from praxis.DepthEstimator import GLPNDepthEstimator
 
 
-def calculate_intersection(hand_index_2D, pointing_direction, objDetection, depth_map):
+def calculate_intersection(hand_index_2D, pointing_direction, objDetection, depth_map, cls_index=0):
 
     print("(================= Calculate_intersection")
     print(f"==>>> hand_index_2D={hand_index_2D}")
@@ -14,7 +14,7 @@ def calculate_intersection(hand_index_2D, pointing_direction, objDetection, dept
     hand_index_3D = convert_2d_to_3d(depth_map, hand_index_2D)
     print(f"==>>> hand_index_3D={hand_index_3D}")
 
-    x_min, y_min, x_max, y_max = objDetection.data[0, :4]
+    x_min, y_min, x_max, y_max = objDetection.data[cls_index, :4]
     object_center_2D = torch.tensor([(x_min+x_max)/2, (y_min+y_max)/2])
     object_center_3D = convert_2d_to_3d(depth_map, object_center_2D)
     print(f"==>>> object_center_3D={object_center_3D}")
@@ -28,8 +28,9 @@ def calculate_intersection(hand_index_2D, pointing_direction, objDetection, dept
     cosine_similarity = torch.dot(normalized_pointing_direction, normalized_vector_to_object)
 
     print(f">>>>>>>>> Cosine Similarity: {cosine_similarity.item()}")
+    print(f">>>>>>>>>================================================ Cosine Similarity: {cosine_similarity.item()}")
     print("================) end calculate_intersection")
-    return cosine_similarity, objDetection.cls
+    return cosine_similarity, objDetection.cls[cls_index]
 
 
 def convert_2d_to_3d(depth_map, pixel_2d):
