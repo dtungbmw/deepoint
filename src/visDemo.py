@@ -9,7 +9,19 @@ from torch.utils.data import DataLoader
 from omegaconf import DictConfig, OmegaConf
 from model import build_pointing_network
 from draw_arrow import WIDTH, HEIGHT
+from praxis.GesturePointingDirectionEstimator import *
 
+from praxis.ObjectDetector import YOLOWorldObjectDetector
+
+from praxis.DepthEstimator import GLPNDepthEstimator
+
+from praxis.Camera import MonocularCamera
+
+from praxis.Utilities import *
+
+PROB_POINTING_MIN = 0.7
+
+COSINE_SIM_MIN = 0.7
 
 @hydra.main(version_base=None, config_path="../conf", config_name="base")
 def main(cfg: DictConfig) -> None:
@@ -44,6 +56,13 @@ def main(cfg: DictConfig) -> None:
         batch_size=cfg.hardware.bs,
         num_workers=cfg.hardware.nworkers,
     )
+
+    # insersion
+    camera = MonocularCamera()
+    image_file = camera.extractImage(cfg.movie)
+    objectDetector = YOLOWorldObjectDetector()
+    objectDetectorResults = objectDetector.predict_and_vis(image_file)
+    gLPNDepthEstimator = GLPNDepthEstimator()
 
     network = build_pointing_network(cfg, DEVICE)
 
@@ -89,6 +108,30 @@ def main(cfg: DictConfig) -> None:
 
             ORIG_HEIGHT, ORIG_WIDTH = image.shape[:2]
             hand_idx = 9 if batch["lr"][i_bs] == "l" else 10
+
+            # insertion
+            if prob_pointing >= PROB_POINTING_MIN:
+
+                print(f"******$$$$$$$$$$ {prob_pointing=}")
+
+                depth_map = gLPNDepthEstimator.predict(image)
+
+                cosine_similarity, obj_cls = \
+                    calculate_intersection(joints[hand_idx], direction, objectDetectorResults[0].boxes, depth_map)
+
+                if cosine_similarity > COSINE_SIM_MIN:
+                    print(f"-------------------------------->>>>>>>>>")
+
+                    print(f"-------------------------------->>>>>>>>>")
+
+                    print(
+                        f"-------------------------------->>>>>>>>> Pointed to {obj_cls}, with cosine_similarity={cosine_similarity}")
+
+                    print(f"-------------------------------->>>>>>>>>")
+            else:
+
+                print(f"|||||||$$$$$$$$$$ {prob_pointing=}")
+
             if (joints[hand_idx] < 0).any():
                 arrow_base = prev_arrow_base
             else:

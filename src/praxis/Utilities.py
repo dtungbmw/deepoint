@@ -44,7 +44,7 @@ def calculate_intersection(hand_index_2D, pointing_unit_vector, objDetection, de
     #plot_3d_vector(hand_index_3D.numpy(), normalized_vector_to_object.numpy(), color='g', label='Vector to Object')
 
     #cosine_similarity = torch.clamp(torch.dot(pointing_unit_vector.detach(), normalized_vector_to_object), -1.0, 1.0)
-    cosine_similarity = torch.dot(normalized_pointing_unit_vector, normalized_vector_to_object)
+    cosine_similarity = torch.dot(normalized_pointing_unit_vector.to("cpu"), normalized_vector_to_object.to("cpu"))
 
     print(f">>>>>>>>> Cosine Similarity: {cosine_similarity.item()}")
     print(f">>>>>>>>>================================================ Cosine Similarity: {cosine_similarity.item()}")
