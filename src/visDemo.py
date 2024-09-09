@@ -91,7 +91,8 @@ def main(cfg: DictConfig) -> None:
     )
 
     prev_arrow_base = np.array((0, 0))
-
+    object_center_3D = None
+    image_blue = None
     for batch in tqdm(dl):
         result = network(batch)
         # bs may be smaller than cfg.hardware.bs for the last iteration
@@ -113,20 +114,14 @@ def main(cfg: DictConfig) -> None:
             if prob_pointing >= PROB_POINTING_MIN:
 
                 print(f"******$$$$$$$$$$ {prob_pointing=}")
-
                 depth_map = gLPNDepthEstimator.predict(image)
-
-                cosine_similarity, obj_cls = \
+                object_center_3D, cosine, obj_cls = cosine_similarity, obj_cls = \
                     calculate_intersection(joints[hand_idx], direction, objectDetectorResults[0].boxes, depth_map)
 
                 if cosine_similarity > COSINE_SIM_MIN:
                     print(f"-------------------------------->>>>>>>>>")
-
                     print(f"-------------------------------->>>>>>>>>")
-
-                    print(
-                        f"-------------------------------->>>>>>>>> Pointed to {obj_cls}, with cosine_similarity={cosine_similarity}")
-
+                    print(f"-------------------------------->>>>>>>>> Pointed to {obj_cls}, with cosine_similarity={cosine_similarity}")
                     print(f"-------------------------------->>>>>>>>>")
             else:
 
@@ -140,6 +135,26 @@ def main(cfg: DictConfig) -> None:
                 )
                 prev_arrow_base = arrow_base
 
+            if object_center_3D is not None:
+                image_blue = draw_arrow_on_image(
+                    image,
+                    (
+                        arrow_base[0],
+                        -arrow_base[1],
+                        object_center_3D[0].cpu(),
+                        object_center_3D[2].cpu(),
+                        -object_center_3D[1].cpu(),
+                    ),
+                    dict(
+                        acolor=(
+                            1,
+                            1,
+                            0,
+                        ),  # blue. OpenCV uses BGR
+                        asize=0.05 * prob_pointing,
+                        offset=0.02,
+                    ),
+                )
             image_green = draw_arrow_on_image(
                 image,
                 (
@@ -180,6 +195,8 @@ def main(cfg: DictConfig) -> None:
             )
 
             cv2.imshow("", image_green)
+            if image_blue is not None:
+                cv2.imshow("", image_blue)
             cv2.waitKey(10)
 
             out_green.write((image_green * 255).astype(np.uint8))
