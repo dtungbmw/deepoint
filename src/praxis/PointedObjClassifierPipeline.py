@@ -30,7 +30,7 @@ class PointedObjClassifierPipeline:
         image_file = camera.extractImage(cfg.movie)
 
         objectDetector = YOLOWorldObjectDetector()
-        objectDetectorResults = objectDetector.predict_and_vis(image_file)
+        objectDetectorResults = objectDetector.predict(image_file)
 
         deepointointingEstimator = DeepointointingEstimator()
         network = deepointointingEstimator.build_network(cfg, DEVICE)
