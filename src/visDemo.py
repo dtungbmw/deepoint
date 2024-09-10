@@ -61,7 +61,7 @@ def main(cfg: DictConfig) -> None:
     camera = MonocularCamera()
     image_file = camera.extractImage(cfg.movie)
     objectDetector = YOLOWorldObjectDetector()
-    objectDetectorResults = objectDetector.predict_and_vis(image_file)
+    objectDetectorResults = objectDetector.predict(image_file)
     gLPNDepthEstimator = GLPNDepthEstimator()
 
     network = build_pointing_network(cfg, DEVICE)
