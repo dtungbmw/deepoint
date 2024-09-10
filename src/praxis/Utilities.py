@@ -14,7 +14,7 @@ def calculate_intersection(hand_index_2D, pointing_unit_vector, objDetection, de
 
     if hand_index_2D[1] < 0: # incorrect hand coord
         print(f"incorrect hand coord: {hand_index_2D}")
-        return 0,  objDetection.cls[cls_index]
+        return None, 0,  objDetection.cls[cls_index]
 
     hand_index_3D = convert_2d_to_3d(depth_map, hand_index_2D)
     print(f"==>>> hand_index_3D={hand_index_3D}")
