@@ -195,6 +195,7 @@ def main(cfg: DictConfig) -> None:
             )
 
             cv2.imshow("", image_green)
+            cv2.waitKey(12)
             if image_blue is not None:
                 cv2.imshow("", image_blue)
             cv2.waitKey(10)
