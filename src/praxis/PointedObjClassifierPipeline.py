@@ -30,7 +30,7 @@ class PointedObjClassifierPipeline:
         image_file = camera.extractImage(cfg.movie)
 
         objectDetector = YOLOWorldObjectDetector()
-        objectDetectorResults = objectDetector.predict(image_file)
+        objectDetectorResults = objectDetector.predict_and_vis(image_file)
 
         deepointointingEstimator = DeepointointingEstimator()
         network = deepointointingEstimator.build_network(cfg, DEVICE)
@@ -58,7 +58,7 @@ class PointedObjClassifierPipeline:
                 if prob_pointing >= PROB_POINTING_MIN:
                     print(f"******$$$$$$$$$$ {prob_pointing=}")
                     depth_map = gLPNDepthEstimator.predict(image)
-                    cosine_similarity, obj_cls = \
+                    object_center_3D, cosine_similarity, obj_cls = \
                         calculate_intersection(joints[hand_idx], direction, objectDetectorResults[0].boxes, depth_map)
                     if cosine_similarity > COSINE_SIM_MIN:
                         print(f"-------------------------------->>>>>>>>>")
