@@ -20,9 +20,9 @@ class YOLOWorldObjectDetector(ObjectDetector):
     def __init__(self):
         self.model = YOLOWorld("yolov8x-worldv2.pt")  # or select yolov8m/l-world.pt for different sizes
         
-    def predict(self, image):
+    def predict(self, image, conf=0.01):
         self.model.set_classes(["lamp"]) #"tv", "laptop", "lamp", "fan"
-        results = self.model.predict(image, conf=0.01)
+        results = self.model.predict(image, conf=conf)
         return results
 
     def predict_and_vis(self, image):
