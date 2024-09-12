@@ -49,7 +49,7 @@ def calculate_intersection(hand_index_2D, pointing_unit_vector, objDetection, de
     print(f">>>>>>>>> Cosine Similarity: {cosine_similarity.item()}")
     print(f">>>>>>>>>================================================ Cosine Similarity: {cosine_similarity.item()}")
     print("================) end calculate_intersection")
-    return object_center_3D, cosine_similarity, objDetection.cls[cls_index]
+    return normalized_vector_to_object, cosine_similarity, objDetection.cls[cls_index]
 
 
 def convert_2d_to_3d(depth_map, pixel_2d):
