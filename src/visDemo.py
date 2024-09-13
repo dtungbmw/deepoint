@@ -18,7 +18,7 @@ from praxis.DepthEstimator import GLPNDepthEstimator
 from praxis.Camera import MonocularCamera
 
 from praxis.Utilities import *
-from praxis.es import *
+#from praxis.es import *
 
 PROB_POINTING_MIN = 0.7
 
