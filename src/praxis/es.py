@@ -17,7 +17,7 @@ session_token=os.getenv('AWS_SESSION_TOKEN')
 # Credentials for AWS authentication
 service = 'es'
 #credentials = boto3.Session().get_credentials()
-awsauth = AWS4Auth(access_key_id, secret_access_key, session_token, region, service)
+awsauth = AWS4Auth(access_key_id, secret_access_key, None, region, service)
 
 # Sample data to be indexed
 data = {
