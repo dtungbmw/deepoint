@@ -12,7 +12,7 @@ host = 'vpc-dev-iedata-es-tset-7e63ja2iyhtzwjntle47vrpdam.us-east-1.es.amazonaws
 
 #[563969369487_PowerUserAccess]
 access_key_id=os.getenv('AWS_ACCESS_KEY_ID')
-secret_access_key="os.getenv('AWS_SECRET_ACCESS_KEY')
+secret_access_key=os.getenv('AWS_SECRET_ACCESS_KEY')
 session_token=os.getenv('AWS_SESSION_TOKEN')
 # Credentials for AWS authentication
 service = 'es'
