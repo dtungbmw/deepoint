@@ -91,7 +91,7 @@ def main(cfg: DictConfig) -> None:
         (WIDTH, HEIGHT),
     )
 
-    save_data()
+    #save_data()
 
     prev_arrow_base = np.array((0, 0))
     object_center_3D = None
