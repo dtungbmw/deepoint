@@ -18,6 +18,7 @@ from praxis.DepthEstimator import GLPNDepthEstimator
 from praxis.Camera import MonocularCamera
 
 from praxis.Utilities import *
+from praxis.es import *
 
 PROB_POINTING_MIN = 0.7
 
@@ -89,6 +90,8 @@ def main(cfg: DictConfig) -> None:
         fps,
         (WIDTH, HEIGHT),
     )
+
+    save_data()
 
     prev_arrow_base = np.array((0, 0))
     object_center_3D = None
