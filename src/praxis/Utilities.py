@@ -4,6 +4,7 @@ from mpl_toolkits.mplot3d import Axes3D
 from praxis.Camera import MonocularCamera
 from praxis.DepthEstimator import GLPNDepthEstimator
 from praxis.es import ElasticsearchClient
+from datetime import datetime
 
 
 def calculate_intersection(hand_index_2D, pointing_unit_vector, objDetection, depth_map, cls_index=0, experiment="praxy"):
@@ -59,7 +60,7 @@ def calculate_intersection(hand_index_2D, pointing_unit_vector, objDetection, de
         "class": objDetection.cls[cls_index]
     }
     elasticsearch_client = ElasticsearchClient()
-    elasticsearch_client.insert_data(index="pointing-exp", document_id=datetime.now(), data)
+    elasticsearch_client.insert_data(index="pointing-exp", document_id=datetime.now(), data=data)
     return normalized_vector_to_object, cosine_similarity, objDetection.cls[cls_index]
 
 
