@@ -4,7 +4,7 @@ from datetime import datetime
 
 
 class ElasticsearchClient:
-    def __init__(self, host='localhost', port=9200, username = 'elastic', scheme='https'):
+    def __init__(self, host='localhost', port=9200, username='elastic'):
         """
         Initialize the connection to the Elasticsearch instance.
 
@@ -14,7 +14,6 @@ class ElasticsearchClient:
         password = 'PV13_NIq1rsf9rixIaie'
         self.es = Elasticsearch(
             hosts=[{'host': host, 'port': port}],
-            scheme=scheme,
             http_auth=(username, password),
             verify_certs=True
         )
