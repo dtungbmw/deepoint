@@ -69,7 +69,7 @@ class PointedObjClassifierPipeline:
                         "class": obj_cls[0],
                         "prob_pointing": prob_pointing
                     }
-                    elasticsearch_client.insert_data(index="", document_id=datetime.now(), data)
+                    elasticsearch_client.insert_data(index="pointing-exp", document_id=datetime.now(), data)
                     if cosine_similarity > COSINE_SIM_MIN:
                         print(f"-------------------------------->>>>>>>>>")
                         print(f"-------------------------------->>>>>>>>>")
