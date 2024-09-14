@@ -10,18 +10,14 @@ from omegaconf import DictConfig, OmegaConf
 from model import build_pointing_network
 from draw_arrow import WIDTH, HEIGHT
 from praxis.GesturePointingDirectionEstimator import *
-
 from praxis.ObjectDetector import YOLOWorldObjectDetector
-
 from praxis.DepthEstimator import GLPNDepthEstimator
-
 from praxis.Camera import MonocularCamera
-
 from praxis.Utilities import *
-#from praxis.es import *
+from praxis.Results import *
+from praxis.Elastic import ElasticsearchClient
 
 PROB_POINTING_MIN = 0.7
-
 COSINE_SIM_MIN = 0.7
 
 @hydra.main(version_base=None, config_path="../conf", config_name="base")
@@ -34,6 +30,8 @@ def main(cfg: DictConfig) -> None:
         + f"{OmegaConf.to_yaml(cfg)}"
         + "==================================================\n"
     )
+
+
 
     DEVICE = "cuda" if torch.cuda.is_available() else "cpu"
     if DEVICE == "cpu":
@@ -91,10 +89,8 @@ def main(cfg: DictConfig) -> None:
         (WIDTH, HEIGHT),
     )
 
-    #save_data()
-    #ec = ElasticsearchClient()
-    #ec.test_store_data(None)
-
+    experiment_result = ExperimentResult(cfg, DEVICE)
+    elasticsearch_client = ElasticsearchClient()
     prev_arrow_base = np.array((0, 0))
     object_center_3D = None
     image_blue = None
@@ -120,8 +116,12 @@ def main(cfg: DictConfig) -> None:
 
                 print(f"******$$$$$$$$$$ {prob_pointing=}")
                 depth_map = gLPNDepthEstimator.predict(image)
+                experiment_result.object_detection_result = objectDetectorResults[0].boxe
+                experiment_result.depth_estimation_result = depth_map
+                experiment_result.pointing_unit_vector = direction
+                experiment_result.joint_estimation_result = joints[hand_idx]
                 object_center_3D, cosine_similarity, obj_cls = \
-                    calculate_intersection(cfg, joints[hand_idx], direction, objectDetectorResults[0].boxes, depth_map)
+                    calculate_intersection(experiment_result, elasticsearch_client)
 
                 if cosine_similarity > COSINE_SIM_MIN:
                     print(f"-------------------------------->>>>>>>>>")

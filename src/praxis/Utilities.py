@@ -3,13 +3,20 @@ import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d import Axes3D
 from praxis.Camera import MonocularCamera
 from praxis.DepthEstimator import GLPNDepthEstimator
-from praxis.es import ElasticsearchClient
+from praxis.Elastic import ElasticsearchClient
+from praxis.Results import *
 from datetime import datetime
 
 
-def calculate_intersection(cfg, hand_index_2D, pointing_unit_vector, objDetection, depth_map, cls_index=0, experiment="praxy"):
+def calculate_intersection(experiment_result, elasticsearch_client=None):
 
     print("(================= Calculate_intersection")
+    cls_index = 0
+    objDetection = experiment_result.object_detection_result
+    depth_map = experiment_result.depth_estimation_result
+    pointing_unit_vector = experiment_result.pointing_unit_vector
+    hand_index_2D = experiment_result.joint_estimation_result
+    experiment_result.print()
     print(f"==>>> hand_index_2D={hand_index_2D}")
     print(f"==>>> pointing_unit_vector={pointing_unit_vector}")
     print(f"==>>> objDetection={objDetection}")
@@ -28,15 +35,9 @@ def calculate_intersection(cfg, hand_index_2D, pointing_unit_vector, objDetectio
 
     vector_to_object = object_center_3D - hand_index_3D
 
-    #print("================###############################################################")
-    #print(f"Norm of DeePoint vector: {torch.norm(pointing_unit_vector).item()}")
-
-    #draw_pointing_unit_vector = torch.tensor([pointing_unit_vector[0],pointing_unit_vector[1],-pointing_unit_vector[2]])
-    #draw_vector_to_object = torch.tensor([vector_to_object[0], vector_to_object[1], -vector_to_object[2]])
-
     # Step 3: Normalize vector
-    normalized_pointing_unit_vector = pointing_unit_vector.detach() / torch.norm(pointing_unit_vector.detach())
-    normalized_vector_to_object = vector_to_object / torch.norm(vector_to_object)
+    experiment_result.normalized_pointing_unit_vector = pointing_unit_vector.detach() / torch.norm(pointing_unit_vector.detach())
+    experiment_result.normalized_vector_to_object = vector_to_object / torch.norm(vector_to_object)
 
     #print(f"Norm of object vector: {torch.norm(normalized_vector_to_object).item()}")
     #print(f"Norm of pointing vector: {torch.norm(normalized_pointing_unit_vector).item()}")
@@ -46,31 +47,23 @@ def calculate_intersection(cfg, hand_index_2D, pointing_unit_vector, objDetectio
     #plot_3d_vector(hand_index_3D.numpy(), normalized_vector_to_object.numpy(), color='g', label='Vector to Object')
 
     #cosine_similarity = torch.clamp(torch.dot(pointing_unit_vector.detach(), normalized_vector_to_object), -1.0, 1.0)
-    cosine_similarity = torch.dot(normalized_pointing_unit_vector.to("cpu"), normalized_vector_to_object.to("cpu"))
-
-    print(f">>>>>>>>> Cosine Similarity: {cosine_similarity.item()}")
-    print(f">>>>>>>>>================================================ Cosine Similarity: {cosine_similarity.item()}")
+    experiment_result.cosine_similarity = torch.dot(experiment_result.normalized_pointing_unit_vector.to("cpu"),
+                                                    experiment_result.normalized_vector_to_object.to("cpu"))
+    print(f">>>>>>>>>================================================ Cosine Similarity: {experiment_result.cosine_similarity.item()}")
     print("================) end calculate_intersection")
-    print(f"normalized_pointing_unit_vector= {normalized_pointing_unit_vector}")
-    print(f"normalized_vector_to_object= {normalized_vector_to_object}")
-    DEVICE = "cuda" if torch.cuda.is_available() else "cpu"
-    data = {
-        "exp": experiment,
-        "rq": "1",
-        "device": DEVICE,
-        "file": cfg.movie,
-        "sim": cosine_similarity.item(),
-        "description": "praxy desc",
-        "class": objDetection.cls[cls_index].item(),
-        "pointing_vector": normalized_pointing_unit_vector[0].item(),
-        "object_vector": normalized_vector_to_object[0].item(),
-        "timestamp": datetime.now(),
-    }
-    elasticsearch_client = ElasticsearchClient()
-    elasticsearch_client.insert_data(index_name="pointing-exp-index", document_id=datetime.now(), data=data)
-    return normalized_vector_to_object, cosine_similarity, objDetection.cls[cls_index]
+    #print(f"normalized_pointing_unit_vector= {experiment_result.normalized_pointing_unit_vector}")
+    #print(f"normalized_vector_to_object= {experiment_result.normalized_vector_to_object}")
+    data = experiment_result.convert_to_json()
+    print(f"data={data}")
+
+    if elasticsearch_client is not None:
+        elasticsearch_client.insert_data(index_name="pointing-exp-index", document_id=datetime.now(), data=data)
+    return experiment_result.normalized_vector_to_object, experiment_result.cosine_similarity, objDetection.cls[cls_index]
 
 
+#print(f"Norm of DeePoint vector: {torch.norm(pointing_unit_vector).item()}")
+#draw_pointing_unit_vector = torch.tensor([pointing_unit_vector[0],pointing_unit_vector[1],-pointing_unit_vector[2]])
+#draw_vector_to_object = torch.tensor([vector_to_object[0], vector_to_object[1], -vector_to_object[2]])
 def convert_2d_to_3d(depth_map, pixel_2d):
 
     print(depth_map)

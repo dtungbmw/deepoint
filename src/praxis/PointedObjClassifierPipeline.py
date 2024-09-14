@@ -12,6 +12,7 @@ from praxis.ObjectDetector import YOLOWorldObjectDetector
 from praxis.DepthEstimator import GLPNDepthEstimator
 from praxis.Camera import MonocularCamera
 from praxis.Utilities import *
+from praxis.Results import *
 
 PROB_POINTING_MIN = 0.7
 COSINE_SIM_MIN = 0.7
@@ -35,7 +36,9 @@ class PointedObjClassifierPipeline:
         network = deepointointingEstimator.build_network(cfg, DEVICE)
 
         gLPNDepthEstimator = GLPNDepthEstimator()
-        #depth_map = gLPNDepthEstimator.predict(image_file)
+        experiment_result = ExperimentResult(cfg, DEVICE)
+
+        #elasticsearch_client = ElasticsearchClient()
 
         iter = 0
         for batch in tqdm(dl):
@@ -58,8 +61,13 @@ class PointedObjClassifierPipeline:
                 if prob_pointing >= PROB_POINTING_MIN:
                     print(f"******$$$$$$$$$$ {prob_pointing=}")
                     depth_map = gLPNDepthEstimator.predict(image)
-                    object_center_3D, cosine_similarity, obj_cls = \
-                        calculate_intersection(cfg, joints[hand_idx], direction, objectDetectorResults[0].boxes, depth_map)
+
+                    experiment_result.object_detection_result = objectDetectorResults[0].boxes
+                    experiment_result.depth_estimation_result = depth_map
+                    experiment_result.pointing_unit_vector = direction
+                    experiment_result.joint_estimation_result = joints[hand_idx]
+                    object_center_3D, cosine_similarity, obj_cls = calculate_intersection(experiment_result)
+
                     if cosine_similarity > COSINE_SIM_MIN:
                         print(f"-------------------------------->>>>>>>>>")
                         print(f"-------------------------------->>>>>>>>>")
