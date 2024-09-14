@@ -55,9 +55,9 @@ def calculate_intersection(hand_index_2D, pointing_unit_vector, objDetection, de
     data = {
         "exp": experiment,
         "rq": "1",
-        "sim": cosine_similarity[0],
+        "sim": cosine_similarity.item(),
         "description": "praxy desc",
-        "class": objDetection.cls[cls_index][0]
+        "class": objDetection.cls[cls_index].item()
     }
     elasticsearch_client = ElasticsearchClient()
     elasticsearch_client.insert_data(index_name="pointing-exp", document_id=datetime.now(), data=data)
