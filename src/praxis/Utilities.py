@@ -51,6 +51,8 @@ def calculate_intersection(cfg, hand_index_2D, pointing_unit_vector, objDetectio
     print(f">>>>>>>>> Cosine Similarity: {cosine_similarity.item()}")
     print(f">>>>>>>>>================================================ Cosine Similarity: {cosine_similarity.item()}")
     print("================) end calculate_intersection")
+    print(f"normalized_pointing_unit_vector= {normalized_pointing_unit_vector}")
+    print(f"normalized_vector_to_object= {normalized_vector_to_object}")
     DEVICE = "cuda" if torch.cuda.is_available() else "cpu"
     data = {
         "exp": experiment,
@@ -60,8 +62,8 @@ def calculate_intersection(cfg, hand_index_2D, pointing_unit_vector, objDetectio
         "sim": cosine_similarity.item(),
         "description": "praxy desc",
         "class": objDetection.cls[cls_index].item(),
-        "pointing_vector": normalized_pointing_unit_vector.item(),
-        "object_vector": normalized_vector_to_object.item(),
+        "pointing_vector": normalized_pointing_unit_vector[0].item(),
+        "object_vector": normalized_vector_to_object[0].item(),
         "timestamp": datetime.now(),
     }
     elasticsearch_client = ElasticsearchClient()
