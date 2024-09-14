@@ -56,7 +56,7 @@ class ExperimentResult:
             "class_name": self.object_detection_result.cls[cls_index].tolist(),
             "norm_pointing_vector": self.normalized_pointing_unit_vector.tolist(),
             "norm_object_vector": self.normalized_vector_to_object.tolist(),
-            "timestamp": self.timestamp,
+            "timestamp": datetime.now(),
         }
 
         return data

@@ -41,16 +41,6 @@ class ElasticsearchClient:
             print(f"Error indexing data: {e}")
             return None
 
-    def test_store_data(self, data):
-        # Example data to insert
-        data = {
-            "title": "Sample Document",
-            "description": "This is a test document to be indexed into Elasticsearch",
-            "timestamp": datetime.now()
-        }
-        self.insert_data(index_name="test-index", document_id=1, data=data)
-
-
     def get_data(self, index_name, document_id):
         """
         Retrieves data from the specified Elasticsearch index.
@@ -78,27 +68,3 @@ class ElasticsearchClient:
             print(f"Index '{index_name}' refreshed.")
         except Exception as e:
             print(f"Error refreshing index: {e}")
-
-
-# Usage Example
-'''
-if __name__ == "__main__":
-    # Initialize the client (assuming Elasticsearch is running locally on EC2)
-    es_client = ElasticsearchClient()
-
-    # Example data to insert
-    data = {
-        "title": "Sample Document",
-        "description": "This is a test document to be indexed into Elasticsearch",
-        "timestamp": datetime.now()
-    }
-
-    # Insert data into the 'test-index' with document ID 1
-    es_client.insert_data(index_name="test-index", document_id=1, data=data)
-
-    # Retrieve the document to verify it's saved
-    es_client.get_data(index_name="test-index", document_id=1)
-
-    # Refresh index to make the document immediately searchable
-    es_client.refresh_index(index_name="test-index")
-'''
