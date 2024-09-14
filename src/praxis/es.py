@@ -4,17 +4,20 @@ from datetime import datetime
 
 
 class ElasticsearchClient:
-    def __init__(self, host='localhost', port=9200, scheme='https'):
+    def __init__(self, host='localhost', port=9200, username = 'elastic', scheme='https'):
         """
         Initialize the connection to the Elasticsearch instance.
 
         :param host: Elasticsearch host (default is localhost)
         :param port: Elasticsearch port (default is 9200)
         """
-        username = 'elastic'
         password = 'PV13_NIq1rsf9rixIaie'
-        self.es = Elasticsearch([{'host': host, 'port': port, 'scheme': scheme, http_auth = (username, password), verify_certs = True}])
-
+        self.es = Elasticsearch(
+            hosts=[{'host': host, 'port': port}],
+            scheme=scheme,
+            http_auth=(username, password),
+            verify_certs=True
+        )
         if self.es.ping():
             print("Connected to Elasticsearch")
         else:
