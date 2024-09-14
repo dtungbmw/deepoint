@@ -24,6 +24,16 @@ class ElasticsearchClient:
             print("Could not connect to Elasticsearch")
             raise ConnectionError("Failed to connect to Elasticsearch")
 
+    def store_exp_data(self, exp, sim, cls, desc="default"):
+        # Example data to insert
+        data = {
+            "exp": "Sample Document",
+            "sim": sim,
+            "description": desc,
+            "class": cls
+        }
+        self.insert_data(index_name="test-index", document_id=datetime.now(), data=data)
+
     def insert_data(self, index_name, document_id, data):
         """
         Inserts data into the specified Elasticsearch index.
