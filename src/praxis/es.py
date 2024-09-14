@@ -11,11 +11,12 @@ class ElasticsearchClient:
         :param host: Elasticsearch host (default is localhost)
         :param port: Elasticsearch port (default is 9200)
         """
-        password = 'PV13_NIq1rsf9rixIaie'
+        CERT_FINGERPRINT="73:ED:97:90:E9:A9:64:96:66:61:D6:18:16:47:A8:1E:F4:30:EF:D6:40:55:1F:C1:73:1A:FE:19:2F:6A:10:C7"
+        ELASTIC_PASSWORD = 'PV13_NIq1rsf9rixIaie'
         self.es = Elasticsearch(
-            hosts=[{'host': host, 'port': port}],
-            http_auth=(username, password),
-            verify_certs=True
+            "https://localhost:9200",
+            ssl_assert_fingerprint=CERT_FINGERPRINT,
+            basic_auth=("elastic", ELASTIC_PASSWORD)
         )
         if self.es.ping():
             print("Connected to Elasticsearch")
