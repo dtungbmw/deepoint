@@ -59,7 +59,7 @@ class PointedObjClassifierPipeline:
                     print(f"******$$$$$$$$$$ {prob_pointing=}")
                     depth_map = gLPNDepthEstimator.predict(image)
                     object_center_3D, cosine_similarity, obj_cls = \
-                        calculate_intersection(joints[hand_idx], direction, objectDetectorResults[0].boxes, depth_map)
+                        calculate_intersection(cfg, joints[hand_idx], direction, objectDetectorResults[0].boxes, depth_map)
                     if cosine_similarity > COSINE_SIM_MIN:
                         print(f"-------------------------------->>>>>>>>>")
                         print(f"-------------------------------->>>>>>>>>")

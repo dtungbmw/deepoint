@@ -7,7 +7,7 @@ from praxis.es import ElasticsearchClient
 from datetime import datetime
 
 
-def calculate_intersection(hand_index_2D, pointing_unit_vector, objDetection, depth_map, cls_index=0, experiment="praxy"):
+def calculate_intersection(cfg, hand_index_2D, pointing_unit_vector, objDetection, depth_map, cls_index=0, experiment="praxy"):
 
     print("(================= Calculate_intersection")
     print(f"==>>> hand_index_2D={hand_index_2D}")
@@ -51,13 +51,17 @@ def calculate_intersection(hand_index_2D, pointing_unit_vector, objDetection, de
     print(f">>>>>>>>> Cosine Similarity: {cosine_similarity.item()}")
     print(f">>>>>>>>>================================================ Cosine Similarity: {cosine_similarity.item()}")
     print("================) end calculate_intersection")
-
+    DEVICE = "cuda" if torch.cuda.is_available() else "cpu"
     data = {
         "exp": experiment,
         "rq": "1",
+        "device": DEVICE,
+        "file": cfg.movie,
         "sim": cosine_similarity.item(),
         "description": "praxy desc",
         "class": objDetection.cls[cls_index].item(),
+        "pointing_vector": normalized_pointing_unit_vector.item(),
+        "object_vector": normalized_vector_to_object.item(),
         "timestamp": datetime.now(),
     }
     elasticsearch_client = ElasticsearchClient()
