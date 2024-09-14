@@ -3,9 +3,10 @@ import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d import Axes3D
 from praxis.Camera import MonocularCamera
 from praxis.DepthEstimator import GLPNDepthEstimator
+from praxis.es import ElasticsearchClient
 
 
-def calculate_intersection(hand_index_2D, pointing_unit_vector, objDetection, depth_map, cls_index=0):
+def calculate_intersection(hand_index_2D, pointing_unit_vector, objDetection, depth_map, cls_index=0, experiment="praxy"):
 
     print("(================= Calculate_intersection")
     print(f"==>>> hand_index_2D={hand_index_2D}")
@@ -49,6 +50,16 @@ def calculate_intersection(hand_index_2D, pointing_unit_vector, objDetection, de
     print(f">>>>>>>>> Cosine Similarity: {cosine_similarity.item()}")
     print(f">>>>>>>>>================================================ Cosine Similarity: {cosine_similarity.item()}")
     print("================) end calculate_intersection")
+
+    data = {
+        "exp": experiment,
+        "rq": "1",
+        "sim": cosine_similarity,
+        "description": "praxy desc",
+        "class": objDetection.cls[cls_index]
+    }
+    elasticsearch_client = ElasticsearchClient()
+    elasticsearch_client.insert_data(index="pointing-exp", document_id=datetime.now(), data)
     return normalized_vector_to_object, cosine_similarity, objDetection.cls[cls_index]
 
 
