@@ -116,7 +116,7 @@ def main(cfg: DictConfig) -> None:
 
                 print(f"******$$$$$$$$$$ {prob_pointing=}")
                 depth_map = gLPNDepthEstimator.predict(image)
-                experiment_result.object_detection_result = objectDetectorResults[0].boxe
+                experiment_result.object_detection_result = objectDetectorResults[0].boxes
                 experiment_result.depth_estimation_result = depth_map
                 experiment_result.pointing_unit_vector = direction
                 experiment_result.joint_estimation_result = joints[hand_idx]
