@@ -3,7 +3,7 @@ from PIL import Image
 import torch
 import timm
 import torchvision.transforms as T
-from depth_anything_v2.dpt import DepthAnythingV2
+#from depth_anything_v2.dpt import DepthAnythingV2
 
 
 class DepthEstimator:
@@ -11,7 +11,7 @@ class DepthEstimator:
     def predict(self):
         pass
 
-
+'''
 class AnythingDepthEstimator(DepthEstimator):
     def __init__(self):
         DEVICE = 'cuda' if torch.cuda.is_available() else 'mps' if torch.backends.mps.is_available() else 'cpu'
@@ -31,7 +31,7 @@ class AnythingDepthEstimator(DepthEstimator):
     def predict(self, image):
         depth = self.model.infer_image(image)
         return depth
-
+'''
 
 class AdabinsDepthEstimator(DepthEstimator):
 

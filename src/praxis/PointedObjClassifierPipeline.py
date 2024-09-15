@@ -9,7 +9,7 @@ from omegaconf import DictConfig, OmegaConf
 from praxis.DepthEstimator import *
 from praxis.GesturePointingDirectionEstimator import *
 from praxis.ObjectDetector import YOLOWorldObjectDetector
-from praxis.DepthEstimator import GLPNDepthEstimator, AdabinsDepthEstimator, AnythingDepthEstimator
+from praxis.DepthEstimator import GLPNDepthEstimator, AdabinsDepthEstimator
 from praxis.Camera import MonocularCamera
 from praxis.Utilities import *
 from praxis.Results import *
