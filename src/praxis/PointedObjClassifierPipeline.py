@@ -9,7 +9,7 @@ from omegaconf import DictConfig, OmegaConf
 from praxis.DepthEstimator import *
 from praxis.GesturePointingDirectionEstimator import *
 from praxis.ObjectDetector import YOLOWorldObjectDetector
-from praxis.DepthEstimator import GLPNDepthEstimator
+from praxis.DepthEstimator import GLPNDepthEstimator, AdabinsDepthEstimator, AnythingDepthEstimator
 from praxis.Camera import MonocularCamera
 from praxis.Utilities import *
 from praxis.Results import *
@@ -35,16 +35,15 @@ class PointedObjClassifierPipeline:
         deepointointingEstimator = DeepointointingEstimator()
         network = deepointointingEstimator.build_network(cfg, DEVICE)
 
-        gLPNDepthEstimator = GLPNDepthEstimator()
-        experiment_result = ExperimentResult(cfg, DEVICE)
+        depthEstimator = GLPNDepthEstimator()
+        #depthEstimator = AdabinsDepthEstimator()
+        #depthEstimator = AnythingDepthEstimator()
 
-        #elasticsearch_client = ElasticsearchClient()
+        experiment_result = ExperimentResult(cfg, DEVICE)
 
         iter = 0
         for batch in tqdm(dl):
             iter = iter + 1
-            #if iter < 23:
-            #    continue
             result = network(batch)
             # bs may be smaller than cfg.hardware.bs for the last iteration
             bs = batch["abs_joint_position"].shape[0]
@@ -60,7 +59,7 @@ class PointedObjClassifierPipeline:
                 hand_idx = 9 if batch["lr"][i_bs] == "l" else 10
                 if prob_pointing >= PROB_POINTING_MIN:
                     print(f"******$$$$$$$$$$ {prob_pointing=}")
-                    depth_map = gLPNDepthEstimator.predict(image)
+                    depth_map = depthEstimator.predict(image)
 
                     experiment_result.object_detection_result = objectDetectorResults[0].boxes
                     experiment_result.depth_estimation_result = depth_map
@@ -78,10 +77,5 @@ class PointedObjClassifierPipeline:
                     print(f"|||||||$$$$$$$$$$ {prob_pointing=}")
 
         return res_class, res_p
-    
-    
-    
-    
-    
     
     

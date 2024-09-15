@@ -1,12 +1,49 @@
 from transformers import GLPNImageProcessor, GLPNForDepthEstimation
 from PIL import Image
 import torch
+import timm
+import torchvision.transforms as T
+from depth_anything_v2.dpt import DepthAnythingV2
 
 
 class DepthEstimator:
     
     def predict(self):
         pass
+
+
+class AnythingDepthEstimator(DepthEstimator):
+    def __init__(self):
+        DEVICE = 'cuda' if torch.cuda.is_available() else 'mps' if torch.backends.mps.is_available() else 'cpu'
+
+        model_configs = {
+            'vits': {'encoder': 'vits', 'features': 64, 'out_channels': [48, 96, 192, 384]},
+            'vitb': {'encoder': 'vitb', 'features': 128, 'out_channels': [96, 192, 384, 768]},
+            'vitl': {'encoder': 'vitl', 'features': 256, 'out_channels': [256, 512, 1024, 1024]},
+            'vitg': {'encoder': 'vitg', 'features': 384, 'out_channels': [1536, 1536, 1536, 1536]}
+        }
+
+        encoder = 'vitb'  # or 'vits', 'vitb', 'vitg'
+        self.model = DepthAnythingV2(**model_configs[encoder])
+        self.model.load_state_dict(torch.load(f'checkpoints/depth_anything_v2_{encoder}.pth', map_location='cpu'))
+        self.model = self.model.to(DEVICE).eval()
+
+    def predict(self, image):
+        depth = self.model.infer_image(image)
+        return depth
+
+
+class AdabinsDepthEstimator(DepthEstimator):
+
+    def __init__(self):
+        self.model = timm.create_model('adabins', pretrained=True)
+        self.model.eval()
+
+    def predict(self, image):
+        with torch.no_grad():
+            depth_map = self.model(image)
+        depth_map = depth_map.squeeze().cpu().numpy()
+        return depth_map
 
     
 class GLPNDepthEstimator(DepthEstimator):
@@ -16,7 +53,6 @@ class GLPNDepthEstimator(DepthEstimator):
         self.model = GLPNForDepthEstimation.from_pretrained("vinvino02/glpn-nyu")
 
     def predict(self, image):
-        #image = Image.open(image_file)
         inputs = self.feature_extractor(images=image, return_tensors="pt")
         with torch.no_grad():
             outputs = self.model(**inputs)
