@@ -14,7 +14,8 @@ class ObjectDetector:
             print("box-> ")
             print(result.boxes)
             print(result.probs)
-    
+
+
 class YOLOWorldObjectDetector(ObjectDetector):
     
     def __init__(self):

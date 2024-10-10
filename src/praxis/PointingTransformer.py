@@ -2,6 +2,27 @@ import torch
 import torch.nn as nn
 import torch.optim as optim
 import torch.nn.functional as F
+from torchvision.models.detection import fasterrcnn_resnet50_fpn
+
+
+# Define Fast R-CNN Backbone for Feature Extraction
+class FastRCNNBackbone(nn.Module):
+    def __init__(self, pretrained=True):
+        super(FastRCNNBackbone, self).__init__()
+        # Load a pre-trained Faster R-CNN model and use its backbone (ResNet + FPN)
+        self.model = fasterrcnn_resnet50_fpn(pretrained=pretrained)
+
+        # Use the backbone part only (ResNet + FPN without region proposals)
+        self.backbone = self.model.backbone
+
+    def forward(self, image):
+        # Forward pass through the Fast R-CNN backbone to get feature maps
+        feature_maps = self.backbone(image)
+
+        # Extract the final layer feature map, which will be a dictionary
+        # You can concatenate all the multi-scale features or use one of them
+        # Here we use the feature map from the first scale (['0'])
+        return feature_maps['0']  # You can select other layers like ['1'], ['2'], etc.
 
 
 # YOLOv8 Backbone for Feature Extraction
@@ -10,10 +31,10 @@ class YOLOBackbone(nn.Module):
         super(YOLOv8Backbone, self).__init__()
 
         # Load YOLOv8 from PyTorch Hub (can also use YOLOv3 or YOLOv8)
-        if pretrained:
-            self.model = torch.hub.load('ultralytics/yolov8', 'yolov8s', pretrained=True)
-        else:
-            self.model = torch.hub.load('ultralytics/yolov8', 'yolov8s', pretrained=False)
+        #if pretrained:
+        self.model = torch.hub.load('ultralytics/yolov8', 'yolov8s', pretrained=True)
+        #else:
+        #    self.model = torch.hub.load('ultralytics/yolov8', 'yolov8s', pretrained=False)
 
         # Remove the detection layers, keep only the backbone (the first layers)
         self.backbone = nn.Sequential(*list(self.model.model[:10]))  # The first 10 layers form the backbone
@@ -32,6 +53,9 @@ class PointingClassificationWithDeepPoint(nn.Module):
 
         # YOLO backbone for image feature extraction
         self.image_backbone = YOLOBackbone()  # Placeholder for YOLO or CNN feature extractor
+
+        # Replace YOLO backbone with Fast R-CNN backbone for feature extraction
+        #self.image_backbone = FastRCNNBackbone(pretrained=True)  # Fast R-CNN backbone
 
         # Pointing vector embedding (from DeepPoint)
         self.pointing_embedding = nn.Linear(3, transformer_hidden_dim)
