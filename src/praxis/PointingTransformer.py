@@ -6,6 +6,7 @@ from torchvision.models.detection import fasterrcnn_resnet50_fpn
 
 
 # Define Fast R-CNN Backbone for Feature Extraction
+'''
 class FastRCNNBackbone(nn.Module):
     def __init__(self, pretrained=True):
         super(FastRCNNBackbone, self).__init__()
@@ -23,7 +24,7 @@ class FastRCNNBackbone(nn.Module):
         # You can concatenate all the multi-scale features or use one of them
         # Here we use the feature map from the first scale (['0'])
         return feature_maps['0']  # You can select other layers like ['1'], ['2'], etc.
-
+'''
 
 # YOLOv8 Backbone for Feature Extraction
 class YOLOBackbone(nn.Module):
