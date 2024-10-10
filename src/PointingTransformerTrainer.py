@@ -1,5 +1,4 @@
-from praxis.PointingTransformer import *
-
+from praxis.PointingTransformer import YOLOBackbone, PointingDeviceClassification
 
 # Define number of classes for your dataset
 num_classes = 3  # Example: 3 object categories
@@ -9,7 +8,7 @@ learning_rate = 1e-4
 
 # Instantiate the DeepPoint model and the combined model with YOLO backbone
 #deep_point_model = DeepPoint()
-pointing_classification_model = PointingClassificationWithDeepPoint(num_classes, transformer_hidden_dim,
+pointing_classification_model = PointingDeviceClassification(num_classes, transformer_hidden_dim,
                                                                     num_transformer_layers)
 
 # Loss function and optimizer

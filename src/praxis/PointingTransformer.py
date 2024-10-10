@@ -28,7 +28,7 @@ class FastRCNNBackbone(nn.Module):
 # YOLOv8 Backbone for Feature Extraction
 class YOLOBackbone(nn.Module):
     def __init__(self, pretrained=True):
-        super(YOLOv8Backbone, self).__init__()
+        super(YOLOBackbone, self).__init__()
 
         # Load YOLOv8 from PyTorch Hub (can also use YOLOv3 or YOLOv8)
         #if pretrained:
@@ -47,9 +47,9 @@ class YOLOBackbone(nn.Module):
         return feature_maps
 
 
-class PointingClassificationWithDeepPoint(nn.Module):
+class PointingDeviceClassification(nn.Module):
     def __init__(self, num_classes, transformer_hidden_dim, num_transformer_layers):
-        super(PointingClassificationWithDeepPoint, self).__init__()
+        super(PointingDeviceClassification, self).__init__()
 
         # YOLO backbone for image feature extraction
         self.image_backbone = YOLOBackbone()  # Placeholder for YOLO or CNN feature extractor
