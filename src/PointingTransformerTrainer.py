@@ -26,7 +26,7 @@ train_loader = [(torch.rand(8, 3, 224, 224), torch.rand(8, 3), torch.randint(0, 
 # Training loop
 num_epochs = 10
 for epoch in range(num_epochs):
-    pointing_classification_model.train()
+    pointing_classification_model.enable_training()
     running_loss = 0.0
     for i, (images, pointing_vectors, labels) in enumerate(train_loader):
         # Forward pass

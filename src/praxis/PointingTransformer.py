@@ -73,6 +73,12 @@ class PointingDeviceClassification(nn.Module):
         # Classification head
         self.fc = nn.Linear(transformer_hidden_dim, num_classes)
 
+    def enable_training(self):
+        # Ensure that only the transformer and your classification layers are set to train mode
+        self.transformer_encoder.train()
+        self.fc.train()
+        #self.image_backbone.train()  # Use only if you want to update the backbone
+
     def forward(self, image, pointing_vector):
         # Pass the image through the YOLO backbone to get feature maps
         image_features = self.image_backbone(image)  # [batch_size, channels, h, w]
