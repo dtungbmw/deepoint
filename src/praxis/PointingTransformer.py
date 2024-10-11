@@ -37,7 +37,9 @@ class YOLOBackbone(nn.Module):
         # Access the backbone layers (typically, backbone and neck are included before detection head)
         # self.model.model[0:10] - Old style access, but now changed
         # Access backbone layers correctly:
-        self.backbone = self.model.model.model[:10]  # Use appropriate indexing for your task
+        #self.backbone = self.model.model.model[:10]  # Use appropriate indexing for your task
+        # Access the backbone layers from the model
+        self.backbone = nn.Sequential(*list(self.model.model.children())[:10])  # Adjust the slice as necessary
 
     def forward(self, image):
         # Pass the image through the YOLO backbone to get feature maps
