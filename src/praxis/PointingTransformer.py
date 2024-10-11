@@ -41,11 +41,11 @@ class YOLOBackbone(nn.Module):
         self.model = YOLO('yolov8s.pt')  # Load a pre-trained model
 
         # Remove the detection layers, keep only the backbone (the first layers)
-        self.backbone = nn.Sequential(*list(self.model.model[:10]))  # The first 10 layers form the backbone
+        #self.backbone = nn.Sequential(*list(self.model.model[:10]))  # The first 10 layers form the backbone
 
     def forward(self, image):
         # Pass the image through the YOLO backbone to get feature maps
-        feature_maps = self.backbone(image)  # Output feature maps
+        feature_maps = self.model.model.backbone(image)  # Output feature maps
 
         # Return the feature maps [batch_size, channels, height, width]
         return feature_maps
