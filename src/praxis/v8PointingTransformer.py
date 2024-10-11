@@ -7,6 +7,7 @@ from ultralytics import YOLO
 
 
 # Define Fast R-CNN Backbone for Feature Extraction
+'''
 class FastRCNNBackbone(nn.Module):
     def __init__(self, pretrained=True):
         super(FastRCNNBackbone, self).__init__()
@@ -24,23 +25,27 @@ class FastRCNNBackbone(nn.Module):
         # You can concatenate all the multi-scale features or use one of them
         # Here we use the feature map from the first scale (['0'])
         return feature_maps['0']  # You can select other layers like ['1'], ['2'], etc.
+'''
 
 
-# YOLOv5 Backbone for Feature Extraction
+# YOLOv8 Backbone for Feature Extraction
 class YOLOBackbone(nn.Module):
     def __init__(self, pretrained=True):
         super(YOLOBackbone, self).__init__()
 
-        # Load YOLOv5 from PyTorch Hub (can also use YOLOv3 or YOLOv8)
-        self.model = torch.hub.load('ultralytics/yolov5', 'yolov5s', pretrained=True)
+        # Load YOLOv8 from PyTorch Hub (can also use YOLOv3 or YOLOv8)
+        #if pretrained:
+        #self.model = torch.hub.load('ultralytics/yolov8', 'yolov8s', pretrained=True)
+        #else:
+        #    self.model = torch.hub.load('ultralytics/yolov8', 'yolov8s', pretrained=False)
+        self.model = YOLO('yolov8s.pt')  # Load a pre-trained model
 
         # Remove the detection layers, keep only the backbone (the first layers)
-        self.backbone = nn.Sequential(*list(self.model.model[:10]))  # The first 10 layers form the backbone
+        #self.backbone = nn.Sequential(*list(self.model.model[:10]))  # The first 10 layers form the backbone
 
     def forward(self, image):
         # Pass the image through the YOLO backbone to get feature maps
-        #feature_maps = self.model.model.backbone(image)  # Output feature maps
-        feature_maps = self.backbone(image)
+        feature_maps = self.model.model.backbone(image)  # Output feature maps
 
         # Return the feature maps [batch_size, channels, height, width]
         return feature_maps
