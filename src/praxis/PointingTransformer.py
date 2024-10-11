@@ -86,9 +86,13 @@ class PointingDeviceClassification(nn.Module):
         if isinstance(image_features, tuple):
             image_features = image_features[0]  # Pick the first feature map (you can change this based on your needs)
 
-        # Flatten the feature maps to get image tokens
-        batch_size, channels, h, w = image_features.shape
-        image_tokens = image_features.view(batch_size, channels, h * w).permute(0, 2, 1)  # [batch_size, num_patches, hidden_dim]
+        # If the output is 3D (batch_size, channels, num_patches), handle accordingly
+        if len(image_features.shape) == 3:
+            batch_size, channels, num_patches = image_features.shape
+            image_tokens = image_features.permute(0, 2, 1)  # [batch_size, num_patches, channels]
+        elif len(image_features.shape) == 4:
+            batch_size, channels, h, w = image_features.shape
+            image_tokens = image_features.view(batch_size, channels, h * w).permute(0, 2, 1)  # [batch_size, num_patches, channels]
 
         # Embed the 3D pointing direction vector (from DeepPoint)
         pointing_token = self.pointing_embedding(pointing_vector).unsqueeze(1)  # [batch_size, 1, hidden_dim]
