@@ -30,17 +30,6 @@ class FastRCNNBackbone(nn.Module):
 class YOLOBackbone(nn.Module):
     def __init__(self, pretrained=True):
         super(YOLOBackbone, self).__init__()
-
-        # Load YOLOv5 from PyTorch Hub (can also use YOLOv3 or YOLOv8)
-        #self.model = torch.hub.load('ultralytics/yolov5', 'yolov5s', pretrained=True)
-
-        # Access the backbone layers (typically, backbone and neck are included before detection head)
-        # self.model.model[0:10] - Old style access, but now changed
-        # Access backbone layers correctly:
-        #self.backbone = self.model.model.model[:10]  # Use appropriate indexing for your task
-        # Access the backbone layers from the model
-        #self.backbone = nn.Sequential(*list(self.model.model.children())[:10])  # Adjust the slice as necessary
-        #self.model = YOLO('yolov5s.pt')  # Load YOLOv5 small model
         self.model = torch.hub.load('ultralytics/yolov5', 'yolov5s', pretrained=True)
 
         # Access the YOLO backbone layers
@@ -60,7 +49,9 @@ class YOLOBackbone(nn.Module):
 class PointingDeviceClassification(nn.Module):
     def __init__(self, num_classes, transformer_hidden_dim, num_transformer_layers):
         super(PointingDeviceClassification, self).__init__()
-        num_patches = 3087
+        self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+        self.transformer_hidden_dim = transformer_hidden_dim
+
         # YOLO backbone for image feature extraction
         self.image_backbone = YOLOBackbone()  # Placeholder for YOLO or CNN feature extractor
 
@@ -101,6 +92,8 @@ class PointingDeviceClassification(nn.Module):
         return torch.cat((tensor1_padded, tensor2_padded), dim=dim)
 
     def forward(self, image, pointing_vector):
+        image = image.to(self.device)
+        pointing_vector = pointing_vector.to(self.device)
         # Pass the image through the YOLO backbone to get feature maps
         image_features = self.image_backbone(image)  # [batch_size, channels, h, w]
 
@@ -116,15 +109,30 @@ class PointingDeviceClassification(nn.Module):
             batch_size, channels, h, w = image_features.shape
             image_tokens = image_features.view(batch_size, channels, h * w).permute(0, 2, 1)  # [batch_size, num_patches, channels]
 
+        hidden_dim = channels
+
         # Embed the 3D pointing direction vector (from DeepPoint)
         pointing_token = self.pointing_embedding(pointing_vector).unsqueeze(1)  # [batch_size, 1, hidden_dim]
+
+        transformer_hidden_dim = self.transformer_hidden_dim
+
+        if hidden_dim != transformer_hidden_dim:
+            # Project image tokens and pointing tokens to the transformer_hidden_dim
+            image_tokens = nn.Linear(hidden_dim, transformer_hidden_dim).to(self.device)(
+                image_tokens)  # [batch_size, num_patches, transformer_hidden_dim]
+            # pointing_token = nn.Linear(hidden_dim, transformer_hidden_dim).to(self.device)(pointing_token)  # [batch_size, 1, transformer_hidden_dim]
+
+        # Concatenate the image tokens with the pointing token
+        tokens = torch.cat((image_tokens, pointing_token),
+                           dim=1)  # [batch_size, num_patches + 1, transformer_hidden_dim]
+
         #pointing_token = self.pointing_projection(pointing_token)
         print(f"image_tokens type = {type(image_tokens)}")
         print(f"pointing_tokens type = {type(image_tokens)}")
         print(f"image_tokens shape = {image_tokens.shape}")
         print(f"pointing_tokens shape = {pointing_token.shape}")
         # Concatenate the pointing token with the image tokens
-        tokens = self.pad_and_concat(image_tokens, pointing_token, dim=1)  # [batch_size, num_patches + 1, hidden_dim]
+        #tokens = self.pad_and_concat(image_tokens, pointing_token, dim=1)  # [batch_size, num_patches + 1, hidden_dim]
 
         # Apply transformer encoder to the concatenated tokens
         transformer_output = self.transformer_encoder(

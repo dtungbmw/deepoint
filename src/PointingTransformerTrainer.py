@@ -36,7 +36,7 @@ for epoch in range(num_epochs):
         pointing_vectors = pointing_vectors.to(device)
         # Forward pass
         outputs = pointing_classification_model(images, pointing_vectors)
-        loss = criterion(outputs, labels)
+        loss = criterion(outputs, labels.to(device))
 
         # Backward pass and optimization
         optimizer.zero_grad()
