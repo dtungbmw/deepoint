@@ -14,6 +14,9 @@ learning_rate = 1e-4
 #deep_point_model = DeepPoint()
 pointing_classification_model = PointingDeviceClassification(num_classes, transformer_hidden_dim,
                                                                     num_transformer_layers)
+device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+# Move the model to the correct device
+pointing_classification_model = pointing_classification_model.to(device)
 
 # Loss function and optimizer
 criterion = nn.CrossEntropyLoss()
@@ -29,6 +32,8 @@ for epoch in range(num_epochs):
     pointing_classification_model.enable_training()
     running_loss = 0.0
     for i, (images, pointing_vectors, labels) in enumerate(train_loader):
+        images = images.to(device)
+        pointing_vectors = pointing_vectors.to(device)
         # Forward pass
         outputs = pointing_classification_model(images, pointing_vectors)
         loss = criterion(outputs, labels)
