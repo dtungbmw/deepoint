@@ -3,6 +3,7 @@ import torch.nn as nn
 import torch.optim as optim
 import torch.nn.functional as F
 from torchvision.models.detection import fasterrcnn_resnet50_fpn
+from ultralytics import YOLO
 
 
 # Define Fast R-CNN Backbone for Feature Extraction
@@ -26,6 +27,7 @@ class FastRCNNBackbone(nn.Module):
         return feature_maps['0']  # You can select other layers like ['1'], ['2'], etc.
 '''
 
+
 # YOLOv8 Backbone for Feature Extraction
 class YOLOBackbone(nn.Module):
     def __init__(self, pretrained=True):
@@ -33,9 +35,10 @@ class YOLOBackbone(nn.Module):
 
         # Load YOLOv8 from PyTorch Hub (can also use YOLOv3 or YOLOv8)
         #if pretrained:
-        self.model = torch.hub.load('ultralytics/yolov8', 'yolov8s', pretrained=True)
+        #self.model = torch.hub.load('ultralytics/yolov8', 'yolov8s', pretrained=True)
         #else:
         #    self.model = torch.hub.load('ultralytics/yolov8', 'yolov8s', pretrained=False)
+        self.model = YOLO('yolov8s.pt')  # Load a pre-trained model
 
         # Remove the detection layers, keep only the backbone (the first layers)
         self.backbone = nn.Sequential(*list(self.model.model[:10]))  # The first 10 layers form the backbone
