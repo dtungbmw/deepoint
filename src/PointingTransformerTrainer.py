@@ -50,4 +50,6 @@ for epoch in range(num_epochs):
                 f'Epoch [{epoch + 1}/{num_epochs}], Step [{i + 1}/{len(train_loader)}], Loss: {running_loss / 10:.4f}')
             running_loss = 0.0
 
+# Save the entire model
+torch.save(pointing_classification_model, 'full_model.pth')
 print('Finished Training')
