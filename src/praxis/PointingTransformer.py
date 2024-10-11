@@ -82,6 +82,10 @@ class PointingDeviceClassification(nn.Module):
         # Pass the image through the YOLO backbone to get feature maps
         image_features = self.image_backbone(image)  # [batch_size, channels, h, w]
 
+        # Check if the output is a tuple (multiple feature maps)
+        if isinstance(image_features, tuple):
+            image_features = image_features[0]  # Pick the first feature map (you can change this based on your needs)
+
         # Flatten the feature maps to get image tokens
         batch_size, channels, h, w = image_features.shape
         image_tokens = image_features.view(batch_size, channels, h * w).permute(0, 2, 1)  # [batch_size, num_patches, hidden_dim]
