@@ -61,7 +61,11 @@ class PointingDeviceClassification(nn.Module):
         #self.image_backbone = FastRCNNBackbone(pretrained=True)  # Fast R-CNN backbone
 
         # Pointing vector embedding (from DeepPoint)
-        self.pointing_embedding = nn.Linear(3, transformer_hidden_dim)
+        #self.pointing_embedding = nn.Linear(3, transformer_hidden_dim)
+        # Embedding for the pointing vector
+        self.pointing_embedding = nn.Linear(3, 256)  # Original embedding size
+        self.pointing_projection = nn.Linear(256,
+                                             transformer_hidden_dim)  # Projection layer to match image tokens' size
 
         # Transformer encoder
         self.transformer_encoder = nn.TransformerEncoder(
@@ -96,6 +100,7 @@ class PointingDeviceClassification(nn.Module):
 
         # Embed the 3D pointing direction vector (from DeepPoint)
         pointing_token = self.pointing_embedding(pointing_vector).unsqueeze(1)  # [batch_size, 1, hidden_dim]
+        pointing_token = self.pointing_projection(pointing_token)
 
         # Concatenate the pointing token with the image tokens
         tokens = torch.cat((image_tokens, pointing_token), dim=1)  # [batch_size, num_patches + 1, hidden_dim]
