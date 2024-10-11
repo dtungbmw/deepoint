@@ -32,14 +32,18 @@ class YOLOBackbone(nn.Module):
         super(YOLOBackbone, self).__init__()
 
         # Load YOLOv5 from PyTorch Hub (can also use YOLOv3 or YOLOv8)
-        self.model = torch.hub.load('ultralytics/yolov5', 'yolov5s', pretrained=True)
+        #self.model = torch.hub.load('ultralytics/yolov5', 'yolov5s', pretrained=True)
 
         # Access the backbone layers (typically, backbone and neck are included before detection head)
         # self.model.model[0:10] - Old style access, but now changed
         # Access backbone layers correctly:
         #self.backbone = self.model.model.model[:10]  # Use appropriate indexing for your task
         # Access the backbone layers from the model
-        self.backbone = nn.Sequential(*list(self.model.model.children())[:10])  # Adjust the slice as necessary
+        #self.backbone = nn.Sequential(*list(self.model.model.children())[:10])  # Adjust the slice as necessary
+        self.model = YOLO('yolov5s.pt')  # Load YOLOv5 small model
+
+        # Access the YOLO backbone layers
+        self.backbone = nn.Sequential(*list(self.model.model.children())[:10])  # Extract backbone
 
     def forward(self, image):
         # Pass the image through the YOLO backbone to get feature maps
@@ -53,28 +57,22 @@ class YOLOBackbone(nn.Module):
 class PointingDeviceClassification(nn.Module):
     def __init__(self, num_classes, transformer_hidden_dim, num_transformer_layers):
         super(PointingDeviceClassification, self).__init__()
-
+        num_patches = 3087
         # YOLO backbone for image feature extraction
         self.image_backbone = YOLOBackbone()  # Placeholder for YOLO or CNN feature extractor
 
         # Replace YOLO backbone with Fast R-CNN backbone for feature extraction
         #self.image_backbone = FastRCNNBackbone(pretrained=True)  # Fast R-CNN backbone
 
-        # Pointing vector embedding (from DeepPoint)
-        #self.pointing_embedding = nn.Linear(3, transformer_hidden_dim)
-        # Embedding for the pointing vector
-        self.pointing_embedding = nn.Linear(3, 256)  # Original embedding size
-        self.pointing_projection = nn.Linear(256,
-                                             transformer_hidden_dim)  # Projection layer to match image tokens' size
+        self.pointing_embedding = nn.Linear(3, transformer_hidden_dim)
+        self.pointing_projection = nn.Linear(transformer_hidden_dim, num_patches)  # To match image tokens' hidden dim
 
         # Transformer encoder
         self.transformer_encoder = nn.TransformerEncoder(
-            nn.TransformerEncoderLayer(d_model=transformer_hidden_dim, nhead=8),
-            num_layers=num_transformer_layers
-        )
+            nn.TransformerEncoderLayer(d_model=num_patches, nhead=8), num_layers=num_transformer_layers)
 
         # Classification head
-        self.fc = nn.Linear(transformer_hidden_dim, num_classes)
+        self.fc = nn.Linear(num_patches, num_classes)
 
     def enable_training(self):
         # Ensure that only the transformer and your classification layers are set to train mode

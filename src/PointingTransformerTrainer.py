@@ -7,7 +7,7 @@ from praxis.PointingTransformer import YOLOBackbone, PointingDeviceClassificatio
 # Define number of classes for your dataset
 num_classes = 3  # Example: 3 object categories
 transformer_hidden_dim = 256 #512
-num_transformer_layers = 4 #6
+num_transformer_layers = 6
 learning_rate = 1e-4
 
 # Instantiate the DeepPoint model and the combined model with YOLO backbone
@@ -22,9 +22,9 @@ pointing_classification_model = pointing_classification_model.to(device)
 criterion = nn.CrossEntropyLoss()
 optimizer = torch.optim.Adam(pointing_classification_model.parameters(), lr=learning_rate)
 
-# Example training data
-train_loader = [(torch.rand(8, 3, 224, 224), torch.rand(8, 3), torch.randint(0, num_classes, (8,))) for _ in
-                range(100)]  # Simulated data
+# Define training data
+train_loader = [(torch.rand(8, 3, 640, 640), torch.rand(8, 3), torch.randint(0, 3, (8,))) for _ in range(100)]  # Simulated data
+
 
 # Training loop
 num_epochs = 10
