@@ -69,7 +69,7 @@ class PointingDeviceClassification(nn.Module):
 
         # Transformer encoder
         self.transformer_encoder = nn.TransformerEncoder(
-            nn.TransformerEncoderLayer(d_model=num_patches, nhead=8), num_layers=num_transformer_layers)
+            nn.TransformerEncoderLayer(d_model=transformer_hidden_dim, nhead=8), num_layers=num_transformer_layers)
 
         # Classification head
         self.fc = nn.Linear(num_patches, num_classes)
