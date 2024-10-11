@@ -34,8 +34,10 @@ class YOLOBackbone(nn.Module):
         # Load YOLOv5 from PyTorch Hub (can also use YOLOv3 or YOLOv8)
         self.model = torch.hub.load('ultralytics/yolov5', 'yolov5s', pretrained=True)
 
-        # Remove the detection layers, keep only the backbone (the first layers)
-        self.backbone = nn.Sequential(*list(self.model.model[:10]))  # The first 10 layers form the backbone
+        # Access the backbone layers (typically, backbone and neck are included before detection head)
+        # self.model.model[0:10] - Old style access, but now changed
+        # Access backbone layers correctly:
+        self.backbone = self.model.model.model[:10]  # Use appropriate indexing for your task
 
     def forward(self, image):
         # Pass the image through the YOLO backbone to get feature maps
