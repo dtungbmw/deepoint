@@ -18,6 +18,8 @@ class MonocularCamera(Camera):
         self.f_y = 1200
         self.c_x = 2016
         self.c_y = 1512
+        self.tvec = 0
+        self.rvec = 0
 
     def extractImage(self, video_file):
         cam = cv2.VideoCapture(video_file)

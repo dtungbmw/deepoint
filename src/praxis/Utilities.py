@@ -1,11 +1,20 @@
 import torch
 import matplotlib.pyplot as plt
+import numpy as np
 from mpl_toolkits.mplot3d import Axes3D
 from praxis.Camera import MonocularCamera
 from praxis.DepthEstimator import GLPNDepthEstimator
 from praxis.Elastic import ElasticsearchClient
 from praxis.Results import *
 from datetime import datetime
+
+
+def perspective_projection(points_3d, focal_length=1.0):
+    # Assume camera looks down z-axis
+    points_2d = np.zeros((points_3d.shape[0], 2))
+    points_2d[:, 0] = focal_length * (points_3d[:, 0] / points_3d[:, 2])  # x / z
+    points_2d[:, 1] = focal_length * (points_3d[:, 1] / points_3d[:, 2])  # y / z
+    return points_2d
 
 
 def calculate_intersection(experiment_result, elasticsearch_client=None):
